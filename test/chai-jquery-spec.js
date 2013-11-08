@@ -1,27 +1,34 @@
 describe("jQuery assertions", function(){
   var inspect;
+  var assert = chai.assert;
 
   chai.use(function (chai, utils) {
     inspect = utils.objDisplay;
 
     chai.Assertion.addMethod('fail', function (message) {
-      var obj = utils.flag(this, 'object');
+      var self = this;
+      var objs = utils.flag(this, 'object');
+      if (!Array.isArray(objs)) objs = [objs];
+      $.each(objs, function (_, obj) {
+        new chai.Assertion(obj).is.a('function');
 
-      new chai.Assertion(obj).is.a('function');
+        var fn = obj.toString();
+        var code = fn.substring(fn.indexOf("{") + 1, fn.lastIndexOf("}")).trim();
 
-      try {
-        obj();
-      } catch (err) {
-        this.assert(
+        try {
+          obj();
+        } catch (err) {
+          self.assert(
             err instanceof chai.AssertionError
-          , 'expected #{this} to fail, but it threw ' + inspect(err));
-        this.assert(
+            , 'expected ' + code + ' to fail, but it threw ' + inspect(err));
+          self.assert(
             err.message === message
-          , 'expected #{this} to fail with ' + inspect(message) + ', but got ' + inspect(err.message));
-        return;
-      }
+            , 'expected ' + code + ' to fail with ' + inspect(message) + ', but got ' + inspect(err.message));
+          return;
+        }
 
-      this.assert(false, 'expected #{this} to fail');
+        self.assert(false, 'expected ' + code + ' to fail');
+      });
     });
   });
 
@@ -31,59 +38,75 @@ describe("jQuery assertions", function(){
     describe("when only attribute name is provided", function(){
       it("passes when the element has the attribute", function(){
         subject.should.have.attr('name');
+        assert.hasAttr(subject, 'name');
       });
 
       it("passes negated when the element does not have the attribute", function(){
         subject.should.not.have.attr('bar');
+        assert.hasNoAttr(subject, 'bar');
       });
 
       it("fails when the element does not have the attribute", function(){
-        (function(){
+        [function(){
           subject.should.have.attr('bar');
-        }).should.fail("expected " + inspect(subject) + " to have a 'bar' attribute");
+        },function(){
+          assert.hasAttr(subject, 'bar');
+        }].should.fail("expected " + inspect(subject) + " to have a 'bar' attribute");
       });
 
       it("fails negated when the element has the attribute", function(){
-        (function(){
+        [function(){
           subject.should.not.have.attr('name');
-        }).should.fail("expected " + inspect(subject) + " not to have a 'name' attribute");
+        },function(){
+          assert.hasNoAttr(subject, 'name');
+        }].should.fail("expected " + inspect(subject) + " not to have a 'name' attribute");
       });
     });
 
     describe("when attribute name and value are provided", function(){
       it("passes when the element has the attribute with the given value", function(){
         subject.should.have.attr('name', 'foo');
+        assert.hasAttrValue(subject, 'name', 'foo');
       });
 
       it("passes negated when the element does not have the attribute", function(){
         subject.should.not.have.attr('bar', 'foo');
+        assert.hasNoAttrValue(subject, 'bar', 'foo');
       });
 
       it("passes negated when the element has the attribute with a different value", function(){
         subject.should.not.have.attr('name', 'bar');
+        assert.hasNoAttrValue(subject, 'name', 'bar');
       });
 
       it("fails when the element does not have the attribute", function(){
-        (function(){
+        [function(){
           subject.should.have.attr('bar', 'foo');
-        }).should.fail("expected " + inspect(subject) + " to have a 'bar' attribute");
+        },function(){
+          assert.hasAttrValue(subject, 'bar', 'foo');
+        }].should.fail("expected " + inspect(subject) + " to have a 'bar' attribute");
       });
 
       it("fails when the element has the attribute with a different value", function(){
-        (function(){
+        [function(){
           subject.should.have.attr('name', 'bar');
-        }).should.fail("expected " + inspect(subject) + " to have a 'name' attribute with the value 'bar', but the value was 'foo'")
+        },function(){
+          assert.hasAttrValue(subject, 'name', 'bar');
+        }].should.fail("expected " + inspect(subject) + " to have a 'name' attribute with the value 'bar', but the value was 'foo'")
       });
 
       it("fails negated when the element has the attribute with the given value", function(){
-        (function(){
+        [function(){
           subject.should.not.have.attr('name', 'foo');
-        }).should.fail("expected " + inspect(subject) + " not to have a 'name' attribute with the value 'foo'")
+        },function(){
+          assert.hasNoAttrValue(subject, 'name', 'foo');
+        }].should.fail("expected " + inspect(subject) + " not to have a 'name' attribute with the value 'foo'")
       });
     });
 
     it("chains", function(){
       subject.should.have.attr('name').equal('foo');
+      assert.hasAttr(subject, 'name').equal('foo');
     });
   });
 

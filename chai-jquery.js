@@ -254,4 +254,17 @@
       }
     }
   });
+
+  chai.assert.hasAttr = function (obj, attr, msg) {
+    return new chai.Assertion(obj, msg).to.have.attr(attr);
+  };
+  chai.assert.hasNoAttr = function (obj, attr, msg) {
+    return new chai.Assertion(obj, msg).to.not.have.attr(attr);
+  };
+  chai.assert.hasAttrValue = function (obj, attr, value, msg) {
+    return new chai.Assertion(obj, msg).to.have.attr(attr, value);
+  };
+  chai.assert.hasNoAttrValue = function (obj, attr, value, msg) {
+    return new chai.Assertion(obj, msg).to.not.have.attr(attr, value);
+  };
 }));

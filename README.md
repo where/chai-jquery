@@ -9,17 +9,22 @@ Include `chai-jquery.js` in your test file, after `chai.js` (version 1.0.0-rc1 o
 
     <script src="chai-jquery.js"></script>
 
-Use the assertions with chai's `expect` or `should` assertions.
+Use the assertions with chai's `expect`, `should`, or `assert` assertions.
 
 ## Assertions
 
 ### `attr(name[, value])`
+
 Assert that the first element of the selection has the given attribute, using [`.attr()`](http://api.jquery.com/attr/).
 Optionally, assert a particular value as well. The return value is available for chaining.
 
     $('#header').should.have.attr('foo');
     expect($('body')).to.have.attr('foo', 'bar');
     expect($('body')).to.have.attr('foo').match(/bar/);
+    assert.hasAttr($('body'), 'foo');
+    assert.hasNoAttr($('body'), 'bar');
+    assert.hasAttrValue($('body'), 'foo', 'bar');
+    assert.hasNoAttrValue($('body'), 'foo', 'baz');
 
 ### `css(name[, value])`
 Assert that the first element of the selection has the given CSS property, using [`.css()`](http://api.jquery.com/css/).
